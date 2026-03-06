@@ -48,32 +48,19 @@ Contract Obligation Hub は、**ケース（Case）中心の業務管理プラ�
 ### セットアップ
 
 ```bash
-# 依存パッケージのインストール
+# 依存パッケージのインストール（Prismaクライアントも自動生成）
 npm install
 
-# Prismaクライアント生成
-npx prisma generate
-
-# データベースのマイグレーション（初回）
-node -e "
-const Database = require('better-sqlite3');
-const fs = require('fs');
-const db = new Database('./prisma/dev.db');
-const sql = fs.readFileSync('./prisma/migrations/20260306042908_init/migration.sql', 'utf8');
-const statements = sql.split(';').filter(s => s.trim().length > 0);
-for (const stmt of statements) { try { db.exec(stmt + ';'); } catch(e) {} }
-db.close();
-console.log('Migration complete');
-"
-
-# デモデータ投入（任意）
-npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
+# データベース初期化 + デモデータ投入
+npm run setup
 
 # 開発サーバー起動
 npm run dev
 ```
 
 ブラウザで http://localhost:3000 を開きます。
+
+> **注意**: `npm run setup` は初回のみ必要です。データベースの初期化（テーブル作成）とデモデータの投入を行います。
 
 ### 基本的な操作フロー
 

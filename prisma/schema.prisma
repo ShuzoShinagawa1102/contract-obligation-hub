@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Case {
+  id           String        @id @default(cuid())
+  title        String
+  contractType String
+  counterparty String
+  businessOwner String
+  description  String?
+  status       String        @default("DRAFT")
+  priority     String        @default("MEDIUM")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  requirements Requirement[]
+  tasks        Task[]
+  auditRecords AuditRecord[]
+}
+
+model Requirement {
+  id          String     @id @default(cuid())
+  caseId      String
+  name        String
+  description String?
+  status      String     @default("PENDING")
+  isRequired  Boolean    @default(true)
+  dueDate     DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  case        Case       @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  evidences   Evidence[]
+}
+
+model Evidence {
+  id            String      @id @default(cuid())
+  requirementId String
+  name          String
+  notes         String?
+  status        String      @default("PENDING")
+  uploadedAt    DateTime    @default(now())
+  expiresAt     DateTime?
+
+  requirement   Requirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  caseId      String
+  title       String
+  description String?
+  owner       String
+  dueDate     DateTime?
+  status      String   @default("TODO")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+}
+
+model AuditRecord {
+  id          String   @id @default(cuid())
+  caseId      String
+  eventType   String
+  description String
+  actor       String
+  createdAt   DateTime @default(now())
+
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+}
